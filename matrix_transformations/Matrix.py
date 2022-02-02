@@ -1,21 +1,16 @@
 class Matrix:
     def __init__(self, arr, width, height):
-        self.arr = arr if arr else []
+        self.arr = arr if arr != None else [[0 for x in range(height)] for y in range(width)] 
         self.width = width
         self.height = height
     def mult_row_col(self, row, col, A, B):
         sum = 0
-        if(len(A) != len(B[0])):
-            print("# rows of A must equal # cols of B")
-            print("Row is %d and col is %d", len(A), len(B[0]))
-            return -1
-        else:
-            for r in range(len(A)):
-                sum += A[row][r] * B[r][col]
+        for r in range(len(A)):
+            sum += A[row][r] * B[r][col]
         return sum
     @staticmethod
     def mult(A, B):
-        output = [[0 for x in range(A.height)] for y in range(B.width)] 
+        output = [[0 for x in range(A.width)] for y in range(B.height)] 
         for r in range(A.height):
             output.append([])
             for c in range(B.width):
