@@ -10,6 +10,8 @@ class Matrix:
         return sum
     @staticmethod
     def mult(A, B):
+        print("A width = ", A.width)
+        print("B height = ", B.height)
         output = [[0 for x in range(A.width)] for y in range(B.height)] 
         for r in range(A.height):
             output.append([])
