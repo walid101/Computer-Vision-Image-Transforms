@@ -1,6 +1,11 @@
 class Matrix:
     def __init__(self, arr, width, height):
-        self.arr = arr if arr != None else [[0 for x in range(width)] for y in range(height)] 
+        #self.arr = arr if arr != None else [[0 for x in range(width)] for y in range(height)] 
+        self.arr = arr
+        try:
+            self.arr[0]
+        except:
+            self.arr = [[0 for x in range(width)] for y in range(height)]
         self.width = width
         self.height = height
     def mult_row_col(self, row, col, A, B):

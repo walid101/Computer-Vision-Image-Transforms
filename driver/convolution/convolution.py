@@ -1,8 +1,3 @@
-import sys
-import os
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
 from matrix_transformations.Matrix import Matrix
 class Convolution:
     def __init__(self):
@@ -28,14 +23,14 @@ class Convolution:
                             #if(delta_y > 0 and delta_y < height):
                         try:
                             if((delta_x >= 0 and delta_x < width) and (delta_y >= 0 and delta_y < height)):
-                                print("sum = ", "con_mat at ", rc, cc, "and img_mat at ", delta_x, delta_y, 
-                                  " center width ", center_width)
+                                '''print("sum = ", "con_mat at ", rc, cc, "and img_mat at ", delta_x, delta_y, 
+                                  " center width ", center_width)'''
                                 sum+=con_mat.arr[rc][cc] * img_mat.arr[delta_x][delta_y]
                                 counter+=1
                         except:
-                            print("out of range: ", str(delta_x), str(delta_y))
-                print("")
+                            '''print("out of range: ", str(delta_x), str(delta_y))'''
+                '''print("")
                 print("sum : ", sum)
-                print("counter: ", counter)
-                output.arr[r][c] = int(sum/counter)
+                print("counter: ", counter)'''
+                output.arr[r][c] = sum/counter if counter > 0 else 0
         return output
