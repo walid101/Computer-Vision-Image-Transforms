@@ -1,4 +1,5 @@
 import sys
+import math
 import cv2
 import copy
 import numpy as np
@@ -194,26 +195,26 @@ def nonMaxSuppression(edge_map, grad_dir):
             edge_map_supp[r][c] = 0
     return edge_map_supp
 # Load images
-img       = cv2.imread('Images/img2.png', 0)
+img       = cv2.imread('Images/img.png', 0)
 # Create your Gaussian kernel
-Gaussian_kernel = np.asarray(genGaussianKernel(23, 3))
+#Gaussian_kernel = np.asarray(genGaussianKernel(23, 3))
 
 # Create your Laplacian of Gaussian
-LoG = cv2.filter2D(src = Gaussian_kernel, ddepth = -1, kernel = Laplacian_kernel)
+#LoG = cv2.filter2D(src = Gaussian_kernel, ddepth = -1, kernel = Laplacian_kernel)
 
 # Convolve with image and noisy image
 #S & P Filter
-noisy_img = noisy_image_generator(img, probability=.1)
-res_img_kernel1 = cv2.filter2D(src = sharpen_img(img), ddepth = -1, kernel = LoG)
-res_img_kernel1_sharpened = cv2.filter2D(src = img, ddepth = -1, kernel = LoG)
+#noisy_img = noisy_image_generator(img, probability=.1)
+#res_img_kernel1 = cv2.filter2D(src = sharpen_img(img), ddepth = -1, kernel = LoG)
+#res_img_kernel1_sharpened = cv2.filter2D(src = img, ddepth = -1, kernel = LoG)
 
 # Write out result images
 
-cv2.imwrite("Results/P1_01.jpg", res_img_kernel1)
-
-img_sp = noisy_image_generator(img, .6)
+#img_sp = noisy_image_generator(img, .6)
 #img_denoised = median_filter(img_sp, 5)
-print("Kernel Gauss: \n", genGaussianKernel(5, 2))
+
+edge_map, grad_dir, com = cannyEnhancer(img)
+edge_map_supp = nonMaxSuppression(edge_map, grad_dir)
 # Plot results
 
 plt.figure(figsize = (10, 10))
@@ -223,6 +224,17 @@ plt.imshow(img, 'gray')
 plt.title('Image: Original')
 plt.axis("off")
 
+
+plt.subplot(2, 2, 2)
+plt.imshow(edge_map, 'gray')
+plt.title('Edge map')
+plt.axis("off")
+
+plt.subplot(2, 2, 3)
+plt.imshow(edge_map_supp, 'gray')
+plt.title('Edge map - suppressed')
+plt.axis("off")
+'''
 plt.subplot(2, 2, 2)
 plt.imshow(res_img_kernel1, 'gray')
 plt.title('Image: Discrete Laplacian Convolved with Gaussian')
@@ -239,7 +251,7 @@ plt.imshow(img_g, 'gray')
 plt.title('Image: filtered noise')
 plt.axis("off")
 
-'''
+
 plt.subplot(2, 2, 4)
 plt.imshow(cv2.filter2D(src = img, ddepth = -1, kernel=Gaussian_kernel), 'gray')
 plt.title('Image: SHARPENED Discrete Laplacian Convolved with Gaussian')
