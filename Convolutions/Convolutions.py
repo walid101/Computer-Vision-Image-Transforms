@@ -110,7 +110,7 @@ def cannyEnhancer(img):
     img_gauss_cx = cv2.filter2D(src = img_gauss_filtered, ddepth = -1, kernel = canny_x)
     img_gauss_cy = cv2.filter2D(src = img_gauss_filtered, ddepth = -1, kernel = canny_y)
     img_gauss_cxy = cv2.bitwise_or(img_gauss_cx, img_gauss_cy) #You can combine two images by doing bitwise or over them
-    img_gauss_cmag = np.sqrt(np.add(np.square(img_gauss_cx), np.square(img_gauss_cy))) #mag of canny
+    img_gauss_cmag = img_gauss_cmag = np.hypot(img_gauss_cx, img_gauss_cy)
     img_gauss_cang = np.arctan(np.divide(img_gauss_cy, img_gauss_cx))
 
     edge_map = img_gauss_cmag
