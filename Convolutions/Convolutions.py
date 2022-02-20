@@ -107,7 +107,7 @@ def cannyEnhancer(img):
     canny_y = np.asarray([[-1,-2,-1],
                [0,0,0],
                [1,2,1]])
-    img_gauss_filtered = cv2.filter2D(src = img, ddepth = -1, kernel = genGaussianKernel(50, 2))
+    img_gauss_filtered = cv2.filter2D(src = img, ddepth = -1, kernel = genGaussianKernel(5, 1))
     img_gauss_cx = cv2.filter2D(src = img_gauss_filtered, ddepth = -1, kernel = canny_x)
     img_gauss_cy = cv2.filter2D(src = img_gauss_filtered, ddepth = -1, kernel = canny_y)
     img_gauss_cxy = cv2.bitwise_or(img_gauss_cx, img_gauss_cy) #You can combine two images by doing bitwise or over them
@@ -194,14 +194,43 @@ def nonMaxSuppression(edge_map, grad_dir):
           if(center < b_right or center < t_left):
             edge_map_supp[r][c] = 0
     return edge_map_supp
+  def histogram_equalization(img_in):
+
+    # Write histogram equalization here
+    # Fill in your code here
+    HSV = cv2.cvtColor(img_in, cv2.COLOR_RGB2HSV) 
+    img_in_hsv = HSV[:,:,2]
+    total_pix = len(img_in_hsv)*len(img_in_hsv[0])
+    hist = [0 for x in range(256)]
+    
+    for r in range(len(img_in_hsv)):
+      for c in range(len(img_in_hsv[r])):
+        hist[img_in_hsv[r][c]] += 1 #Get freq vals for hist
+    pdf = np.true_divide(np.asarray(hist), total_pix) #pdf for hist
+    cdf = [0 for x in range(256)]
+    run_sum = 0
+    for i in range(len(pdf)):
+      run_sum+=pdf[i]
+      cdf[i] = run_sum 
+    #cdf found
+    intensity_output = np.asarray(cdf)*255
+    intensity = img_in_hsv
+    for r in range(len(img_in_hsv)):
+      for c in range(len(img_in_hsv[r])):
+        intensity[r][c] = intensity_output[intensity[r][c]]
+    #print("img out intensity: ", intensity)
+    img_out = copy.deepcopy(HSV)
+    img_out[:,:,2] = intensity
+    img_out = cv2.cvtColor(img_out, cv2.COLOR_HSV2RGB) 
+    return True, img_out
 # Load images
-img       = cv2.imread('Images/img.png', 0)
+img       = cv2.imread('Images/img.jpg', 0)
 # Create your Gaussian kernel
-#Gaussian_kernel = np.asarray(genGaussianKernel(23, 3))
+Gaussian_kernel = np.asarray(genGaussianKernel(23, 3))
 
 # Create your Laplacian of Gaussian
-#LoG = cv2.filter2D(src = Gaussian_kernel, ddepth = -1, kernel = Laplacian_kernel)
-
+LoG = cv2.filter2D(src = Gaussian_kernel, ddepth = -1, kernel = Laplacian_kernel)
+img_log = cv2.filter2D(src = img, ddepth = -1, kernel = LoG)
 # Convolve with image and noisy image
 #S & P Filter
 #noisy_img = noisy_image_generator(img, probability=.1)
@@ -234,6 +263,12 @@ plt.subplot(2, 2, 3)
 plt.imshow(edge_map_supp, 'gray')
 plt.title('Edge map - suppressed')
 plt.axis("off")
+
+plt.subplot(2, 2, 4)
+plt.imshow(img_log, 'gray')
+plt.title('Laplacian of Gaussian')
+plt.axis("off")
+
 '''
 plt.subplot(2, 2, 2)
 plt.imshow(res_img_kernel1, 'gray')
