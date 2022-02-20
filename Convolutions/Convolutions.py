@@ -1,5 +1,6 @@
 import sys
 import math
+from black import out
 import cv2
 import copy
 import numpy as np
@@ -7,7 +8,7 @@ import matplotlib.pyplot as plt
 from scipy import ndimage, misc
 from IPython.display import display, Image
 from matplotlib import cm
-
+import addcopyfighandler
 Laplacian_kernel = np.asarray([[0,1,0],
                                [1,-4,1],
                                [0,1,0]])
@@ -39,6 +40,14 @@ def sharpen_img(img):
                        [-1,4,0],
                        [0,-1,0]])
   return cv2.filter2D(src = img, ddepth = -1, kernel=kernel)
+
+def sharpen_img_colored(imgB):
+  img_hsv = cv2.cvtColor(imgB, cv2.COLOR_RGB2HSV) 
+  hsv_value_sharpened = sharpen_img(img_hsv[:,:,2])
+  output_img_sharpened = img_hsv
+  output_img_sharpened[:,:,2] = hsv_value_sharpened
+  output_img_sharpened = cv2.cvtColor(output_img_sharpened, cv2.COLOR_HSV2RGB) 
+  return output_img_sharpened[..., ::-1]
 
 def noisy_image_generator(img_in, probability):
   # define your function here
@@ -194,8 +203,7 @@ def nonMaxSuppression(edge_map, grad_dir):
           if(center < b_right or center < t_left):
             edge_map_supp[r][c] = 0
     return edge_map_supp
-  def histogram_equalization(img_in):
-
+def histogram_equalization(img_in):
     # Write histogram equalization here
     # Fill in your code here
     HSV = cv2.cvtColor(img_in, cv2.COLOR_RGB2HSV) 
@@ -224,13 +232,21 @@ def nonMaxSuppression(edge_map, grad_dir):
     img_out = cv2.cvtColor(img_out, cv2.COLOR_HSV2RGB) 
     return True, img_out
 # Load images
-img       = cv2.imread('Images/img.jpg', 0)
+#img       = cv2.imread('Images/img2.png', 0)
+imgB       = cv2.imread('Images/img_walid.jpg', cv2.IMREAD_COLOR)
+img_hsv = cv2.cvtColor(imgB, cv2.COLOR_RGB2HSV) 
+hsv_value_sharpened = sharpen_img(img_hsv[:,:,2])
+output_img_sharpened = img_hsv
+output_img_sharpened[:,:,2] = hsv_value_sharpened
+output_img_sharpened = cv2.cvtColor(output_img_sharpened, cv2.COLOR_HSV2RGB) 
+succeed, output_image_sharpened_hist = histogram_equalization(output_img_sharpened)
+succeed2, output_image_hist = histogram_equalization(imgB)
 # Create your Gaussian kernel
-Gaussian_kernel = np.asarray(genGaussianKernel(23, 3))
+#Gaussian_kernel = np.asarray(genGaussianKernel(23, 3))
 
 # Create your Laplacian of Gaussian
-LoG = cv2.filter2D(src = Gaussian_kernel, ddepth = -1, kernel = Laplacian_kernel)
-img_log = cv2.filter2D(src = img, ddepth = -1, kernel = LoG)
+#LoG = cv2.filter2D(src = Gaussian_kernel, ddepth = -1, kernel = Laplacian_kernel)
+#img_log = cv2.filter2D(src = img, ddepth = -1, kernel = LoG)
 # Convolve with image and noisy image
 #S & P Filter
 #noisy_img = noisy_image_generator(img, probability=.1)
@@ -242,10 +258,58 @@ img_log = cv2.filter2D(src = img, ddepth = -1, kernel = LoG)
 #img_sp = noisy_image_generator(img, .6)
 #img_denoised = median_filter(img_sp, 5)
 
-edge_map, grad_dir, com = cannyEnhancer(img)
-edge_map_supp = nonMaxSuppression(edge_map, grad_dir)
-# Plot results
+#edge_map, grad_dir, com = cannyEnhancer(img)
+#edge_map_supp = nonMaxSuppression(edge_map, grad_dir)
 
+
+
+
+
+
+fig = plt.figure(figsize=(20, 15))
+plt.subplot(1, 2, 1)
+plt.imshow(imgB[..., ::-1])
+plt.title('original image')
+plt.axis("off")
+
+
+plt.subplot(1, 2, 2)
+plt.imshow(output_img_sharpened[..., ::-1])
+plt.title('SHARPENED image')
+plt.axis("off")
+
+'''
+plt.subplot(1, 2, 1)
+plt.imshow(output_image_hist[..., ::-1])
+plt.title('Plain Sharpening + Hist Result: ')
+plt.axis("off")
+
+fig = plt.figure(figsize=(20, 15))
+plt.subplot(1, 2, 2)
+plt.imshow(output_image_sharpened_hist[..., ::-1])
+plt.title('Contrast Saturation Sharpening WITH Historgram Equalization Result: ')
+plt.axis("off")
+
+
+img_equal = cv2.imread('Images/img.jpg', cv2.IMREAD_COLOR)
+succeed, output_image = histogram_equalization(img_equal)
+
+# Plot results
+fig = plt.figure(figsize=(20, 15))
+plt.subplot(1, 2, 1)
+plt.imshow(img_equal[..., ::-1])
+plt.title('original image')
+plt.axis("off")
+
+
+# Plot results2
+plt.subplot(1, 2, 2)
+plt.imshow(output_image[..., ::-1])
+plt.title('histogram equal result')
+plt.axis("off")
+# Plot results
+'''
+'''
 plt.figure(figsize = (10, 10))
 
 plt.subplot(2, 2, 1)
@@ -269,7 +333,7 @@ plt.imshow(img_log, 'gray')
 plt.title('Laplacian of Gaussian')
 plt.axis("off")
 
-'''
+#--------------END HERE
 plt.subplot(2, 2, 2)
 plt.imshow(res_img_kernel1, 'gray')
 plt.title('Image: Discrete Laplacian Convolved with Gaussian')
